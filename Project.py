@@ -19,7 +19,7 @@ plt.ylabel('Frequency')
 plt.show()
 
 #insure the graph has been showed correctly by printing a string
-print("First graph has been loaded")
+print("Distribution of 'Amount' graph has been loaded")
 
 
 # Bar Plot: Count of different 'Status'
@@ -32,7 +32,7 @@ plt.xticks(rotation=45)
 plt.show()
 
 #insure the graph has been showed correctly by printing a string
-print("second graph has been loaded")
+print("Count of different 'Status' graph has been loaded")
 
 
 # Line Plot: Sales Amount over Time
@@ -44,7 +44,7 @@ plt.ylabel('Amount')
 plt.show()
 
 #insure the graph has been showed correctly by printing a string
-print("3rd graph has been loaded")
+print("Sales Amount over Time graph has been loaded")
 
 
 # Bar Plot: Count of different 'Quantity'
@@ -57,4 +57,63 @@ plt.xticks(rotation=45)
 plt.show()
 
 #insure the graph has been showed correctly by printing a string
-print("4th graph has been loaded")
+print("Count of different 'Quantity' graph has been loaded")
+
+
+############################
+#Second Part Of Data Visualization(Visual Analysis):
+
+#Visualize Sales Trends Over Time
+
+# Extract month and year from 'Date'
+df['Month'] = df['Date'].dt.month_name()
+
+# Group by month name and calculate total sales
+monthly_sales = df.groupby('Month')['Amount'].sum().reindex([
+    'January', 'February', 'March', 'April', 'May', 'June', 
+    'July', 'August', 'September', 'October', 'November', 'December'
+]).reset_index()
+
+
+# Line Plot: Monthly Sales Trends
+plt.figure(figsize=(14, 7))
+sns.lineplot(x='Month', y='Amount', data=monthly_sales)
+plt.title('Monthly Sales Trends')
+plt.xlabel('Month')
+plt.ylabel('Sales Amount')
+plt.xticks(rotation=45)
+plt.show()
+
+#insure the graph has been showed correctly by printing a string
+print("Sales Trends Over Time graph has been loaded")
+
+
+#Bar Plot for Sales by Category
+sales_by_category = df.groupby('Category')['Amount'].sum().sort_values(ascending=False)
+
+plt.figure(figsize=(12, 6))
+sns.barplot(x=sales_by_category.index, y=sales_by_category.values, palette='viridis')
+plt.title('Sales by Category')
+plt.xlabel('Category')
+plt.ylabel('Total Sales Amount')
+plt.xticks(rotation=45)
+plt.show()
+
+#insure the graph has been showed correctly by printing a string
+print("Top selling category graph has been loaded")
+
+
+#Bar Plot for Sales by City
+
+# Group by ship-city and calculate total sales
+city_sales = df.groupby('ship-city')['Amount'].sum().sort_values(ascending=False).reset_index()
+
+# Plot the top 10 cities by sales
+top_cities = city_sales.head(10)
+
+plt.figure(figsize=(14, 7))
+sns.barplot(x='Amount', y='ship-city', data=top_cities, palette='viridis')
+plt.title('Top 10 Cities by Sales')
+plt.xlabel('Total Sales Amount')
+plt.ylabel('City')
+plt.show()
