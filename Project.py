@@ -1,10 +1,11 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import LabelEncoder
-from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import accuracy_score, classification_report
+import dash
+from dash import dcc, html
+import plotly.express as px
+from dash.dependencies import Input, Output
+
 
 # Load the data
 file_path = 'Amazon_Sale_Report.xlsx'
@@ -124,3 +125,70 @@ plt.show()
 
 
 ###########################################
+######################################
+######################################
+######################################
+# Initialize the Dash app
+
+monthly_sales = df.groupby(df['Date'].dt.to_period('M'))['Amount'].sum().reset_index()
+monthly_sales['Date'] = monthly_sales['Date'].dt.to_timestamp()
+
+
+app = dash.Dash(__name__)
+
+# Define the layout of the app
+app.layout = html.Div([
+    html.H1("Sales Dashboard"),
+    
+    # Histogram of Amount
+    html.Div([
+        html.H2("Distribution of Amount"),
+        dcc.Graph(
+            figure=px.histogram(df, x='Amount', title='Distribution of Amount', nbins=50)
+        )
+    ]),
+    
+    # Line plot of Monthly Sales Trends
+    html.Div([
+        html.H2("Monthly Sales Trends"),
+        dcc.Graph(
+            figure=px.line(monthly_sales, x='Date', y='Amount', title='Monthly Sales Trends')
+        )
+    ]),
+    
+    # Dropdown to select top-selling products
+    html.Div([
+        html.H2("Amount Of Products By Size"),
+        dcc.Dropdown(
+            id='product-dropdown',
+            options=[{'label': i, 'value': i} for i in df['Size'].unique()],
+            value=df['Size'].unique()[0]
+        ),
+        dcc.Graph(id='top-products-bar')
+    ]),
+    
+    # Geographical Sales Distribution
+    html.Div([
+        html.H2("Sales Distribution by City"),
+        dcc.Graph(
+            figure=px.scatter_geo(df, locations="ship-city", locationmode="country names",
+                                  color="Amount", size="Amount",
+                                  hover_name="ship-city", title='Sales Distribution by City')
+        )
+    ])
+])
+
+# Callback to update top-selling products bar plot based on dropdown selection
+@app.callback(
+    Output('top-products-bar', 'figure'),
+    Input('product-dropdown', 'value')
+)
+def update_bar_chart(selected_product):
+    filtered_df = df[df['Size'] == selected_product]
+    top_products = filtered_df.groupby('Size')['Amount'].sum().reset_index()
+    fig = px.bar(top_products, x='Size', y='Amount', title=f'Top-Selling Product: {selected_product}')
+    return fig
+
+# Run the app
+if __name__ == '__main__':
+    app.run_server(debug=True)
