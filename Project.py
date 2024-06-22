@@ -1,6 +1,10 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelEncoder
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score, classification_report
 
 # Load the data
 file_path = 'Amazon_Sale_Report.xlsx'
@@ -19,7 +23,7 @@ plt.ylabel('Frequency')
 plt.show()
 
 #insure the graph has been showed correctly by printing a string
-print("Distribution of 'Amount' graph has been loaded")
+print("(Distribution of 'Amount') graph has been loaded")
 
 
 # Bar Plot: Count of different 'Status'
@@ -32,7 +36,7 @@ plt.xticks(rotation=45)
 plt.show()
 
 #insure the graph has been showed correctly by printing a string
-print("Count of different 'Status' graph has been loaded")
+print("(Count of different 'Status') graph has been loaded")
 
 
 # Line Plot: Sales Amount over Time
@@ -44,7 +48,7 @@ plt.ylabel('Amount')
 plt.show()
 
 #insure the graph has been showed correctly by printing a string
-print("Sales Amount over Time graph has been loaded")
+print("(Sales Amount over Time) graph has been loaded")
 
 
 # Bar Plot: Count of different 'Quantity'
@@ -57,7 +61,7 @@ plt.xticks(rotation=45)
 plt.show()
 
 #insure the graph has been showed correctly by printing a string
-print("Count of different 'Quantity' graph has been loaded")
+print("(Count of different 'Quantity') graph has been loaded")
 
 
 ############################
@@ -85,7 +89,7 @@ plt.xticks(rotation=45)
 plt.show()
 
 #insure the graph has been showed correctly by printing a string
-print("Sales Trends Over Time graph has been loaded")
+print("(Sales Trends Over Time) graph has been loaded")
 
 
 #Bar Plot for Sales by Category
@@ -100,7 +104,7 @@ plt.xticks(rotation=45)
 plt.show()
 
 #insure the graph has been showed correctly by printing a string
-print("Top selling category graph has been loaded")
+print("(Top selling category) graph has been loaded")
 
 
 #Bar Plot for Sales by City
@@ -117,3 +121,43 @@ plt.title('Top 10 Cities by Sales')
 plt.xlabel('Total Sales Amount')
 plt.ylabel('City')
 plt.show()
+
+
+############################
+#Predection Model
+
+#1-Prepare the data
+
+# Encode categorical variables
+
+label_encoders = {}
+categorical_columns = ['Order ID', 'Status', 'Fulfilment', 'Sales Channel', 'ship-service-level',
+                       'Style', 'SKU', 'Category', 'Size', 'ASIN', 'Courier Status', 'currency',
+                       'ship-city', 'ship-state', 'ship-country', 'promotion-ids', 'B2B', 'fulfilled-by']
+
+for column in categorical_columns:
+    le = LabelEncoder()
+    df[column] = le.fit_transform(df[column])
+    label_encoders[column] = le
+
+# Define the feature set and target variable
+X = df.drop(['Status','Date'], axis=1)
+y = df['Status']
+
+# Split the data into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+
+
+
+
+# Train a logistic regression model
+log_reg = LogisticRegression(max_iter=1000)
+log_reg.fit(X_train, y_train)
+
+# Predict on the test set
+y_pred_log_reg = log_reg.predict(X_test)
+
+# Evaluate the model
+print("Logistic Regression Accuracy:", accuracy_score(y_test, y_pred_log_reg))
+print("Logistic Regression Classification Report:\n", classification_report(y_test, y_pred_log_reg))
