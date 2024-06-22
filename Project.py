@@ -123,41 +123,4 @@ plt.ylabel('City')
 plt.show()
 
 
-############################
-#Predection Model
-
-#1-Prepare the data
-
-# Encode categorical variables
-
-label_encoders = {}
-categorical_columns = ['Order ID', 'Status', 'Fulfilment', 'Sales Channel', 'ship-service-level',
-                       'Style', 'SKU', 'Category', 'Size', 'ASIN', 'Courier Status', 'currency',
-                       'ship-city', 'ship-state', 'ship-country', 'promotion-ids', 'B2B', 'fulfilled-by']
-
-for column in categorical_columns:
-    le = LabelEncoder()
-    df[column] = le.fit_transform(df[column])
-    label_encoders[column] = le
-
-# Define the feature set and target variable
-X = df.drop(['Status','Date'], axis=1)
-y = df['Status']
-
-# Split the data into training and testing sets
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
-
-
-
-
-# Train a logistic regression model
-log_reg = LogisticRegression(max_iter=1000)
-log_reg.fit(X_train, y_train)
-
-# Predict on the test set
-y_pred_log_reg = log_reg.predict(X_test)
-
-# Evaluate the model
-print("Logistic Regression Accuracy:", accuracy_score(y_test, y_pred_log_reg))
-print("Logistic Regression Classification Report:\n", classification_report(y_test, y_pred_log_reg))
+###########################################
